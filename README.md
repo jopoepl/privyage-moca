@@ -74,6 +74,7 @@ NEXT_PUBLIC_MOCA_CREDENTIAL_ID='your-credential-issuer-program-ID'
 NEXT_PUBLIC_MOCA_VERIFIER_ID = 'your-verifier-program-ID'
 NEXT_PUBLIC_MOCA_VERIFIER_DID = 'your-verifier-did-from-dashboard'
 NEXT_PUBLIC_MOCA_ISSUER_DID = 'your-issuer-program-did-from-dashboard'
+PRIVATE_KEY_B64='your-private-key'
 ```
 
 Add any AirKit or external service keys if required.
