@@ -1,172 +1,109 @@
-# PrivyAge Moca - Frontend
+# 🛡️ PrivyAge — Blockchain-Powered Age Verification
 
-A privacy-first age verification service built with Next.js 15+ and TypeScript.
+A privacy-first, blockchain-powered age verification system built with Next.js 15+ and Node.js.
+It verifies user age using cryptographically-signed JWTs, without storing any personal data.
 
-## Features
-
-- 🔐 **Privacy-First**: No personal data storage
-- 🛡️ **Cryptographically Secure**: JWT-based verification
-- 🎨 **Modern UI**: Built with Tailwind CSS
-- 📱 **Responsive**: Works on all devices
-- 🔌 **Easy Integration**: Simple widget for external sites
-- ⚡ **Fast**: Built with Next.js 15+ and App Router
-
-## Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
 
 - Node.js 18+
 - npm or yarn
 
-### Installation
+### 1. Clone & Install
 
-1. Install dependencies:
-
-```bash
+\`\`\`bash
+git clone <repository-url>
+cd privyage
 npm install
-```
+\`\`\`
 
-2. Start the development server:
+### 2. Run the App
 
-```bash
+\`\`\`bash
 npm run dev
-```
+\`\`\`
 
-3. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Then visit:
+👉 [http://localhost:3000/demo](http://localhost:3000/demo)
 
-## Project Structure
+## 🏗️ Project Structure
 
-```
-frontend/
-├── src/
-│   ├── app/
-│   │   ├── page.tsx          # Main page
-│   │   └── layout.tsx        # Root layout
-│   └── components/
-│       └── AgeVerificationWidget.tsx
-├── public/
-│   ├── widget.js             # External widget script
-│   └── popup.html            # Standalone popup
-├── next.config.js            # Next.js configuration
+\`\`\`
+privyage/
+├── app/
+│ ├── api/
+│ │ └── generate-jwt/route.ts # Generates signed JWTs
+│ └── demo/page.tsx # Demo page (UI)
+│
+├── components/
+│ ├── VerifyButton.tsx # Age verification trigger
+│ └── IssueCredentialButton.tsx # Credential issuance trigger
+│
+├── hooks/
+│ ├── useAirKitNew.ts
+│ ├── useAirKitService.ts
+│ ├── useAgeVerificationNew.ts
+│ └── useCredentialIssuanceNew.ts
+│
+├── services/
+│ └── airKitService.ts # AirKit API logic
+│
+├── store/
+│ └── useUserStore.ts # Global user state (Zustand)
+│
 └── package.json
-```
+\`\`\`
 
-## Widget Integration
+## 🔐 How It Works
 
-### Method 1: Script Tag
+1. User initiates verification via the \`VerifyButton\`.
+2. The app calls \`/api/generate-jwt\` to get a signed JWT (RSA).
+3. The token is verified via AirKit’s JWKS endpoint.
+4. If the user’s age ≥ required minimum → verification success.
+5. Optionally, user can issue a credential on-chain via \`IssueCredentialButton\`.
 
-Include the widget script in your HTML:
+## ⚙️ Configuration
 
-```html
-<script src="http://localhost:3000/widget.js"></script>
-<script>
-  const widget = new PrivyAgeWidget({
-    apiUrl: "http://localhost:3001/api/verify-age",
-    requiredAge: 18,
-    onVerified: (verified, age) => {
-      console.log("Age verified:", age);
-      // Handle verified user
-    },
-    onError: (error) => {
-      console.error("Verification failed:", error);
-    },
-  });
-
-  // Show the widget
-  widget.show();
-</script>
-```
-
-### Method 2: Data Attributes
-
-Add data attributes to any element:
-
-```html
-<div
-  data-privyage-widget
-  data-api-url="http://localhost:3001/api/verify-age"
-  data-required-age="18"
-  data-on-verified="handleVerified"
-  data-on-error="handleError"
->
-  Verify Age
-</div>
-```
-
-### Method 3: Popup Window
-
-Open the popup in a new window:
-
-```javascript
-const popup = window.open(
-  "http://localhost:3000/popup.html?requiredAge=18&apiUrl=http://localhost:3001/api/verify-age",
-  "ageVerification",
-  "width=400,height=500,scrollbars=no,resizable=no",
-);
-
-window.addEventListener("message", (event) => {
-  if (event.data.type === "PRIVYAGE_VERIFICATION_RESULT") {
-    popup.close();
-  }
-});
-```
-
-## API Endpoints
-
-The frontend proxies requests to the backend API:
-
-- `POST /api/verify-age/verify` - Verify age with JWT token
-- `POST /api/verify-age/generate-test-token` - Generate test token (dev only)
-- `GET /api/verify-age/.well-known/jwks.json` - Get JWKS for token verification
-
-## Environment Variables
-
-Create a `.env.local` file:
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001/api/verify-age
+Create a \`.env.local\` file:
+\`\`\`
 NEXT_PUBLIC_REQUIRED_AGE=18
-```
+NEXT_PUBLIC_API_URL=/api/generate-jwt
+\`\`\`
+Add any AirKit or external service keys if required.
 
-## Development
+## 🧪 Demo
 
-### Available Scripts
+The demo page shows a complete verification and credential flow:
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
-- `npm run lint` - Run ESLint
+- \`/demo\`
+- Blur-until-verified UI
+- Privacy-focused flow (no personal data stored)
+- Blockchain-backed verification
 
-### Tech Stack
+## 🛠️ Scripts
 
-- **Framework**: Next.js 15+ with App Router
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **Linting**: ESLint with Next.js config
+\`\`\`bash
+npm run dev # Start local server
+npm run build # Build for production
+npm run start # Start production build
+npm run lint # Run ESLint
+\`\`\`
 
-## Security Considerations
+## 🔒 Features
 
-- All age verification happens server-side
-- JWT tokens are cryptographically signed
-- No personal data is stored in the frontend
-- CORS is properly configured
-- Input validation on both client and server
+✅ **JWT-based Verification** — Secure and cryptographically signed
+🧠 **Blockchain Integration** — Uses AirKit for on-chain credentialing
+🚫 **No Data Storage** — Fully privacy-first
+⚡ **Next.js App Router** — Modern serverless-ready architecture
 
-## Browser Support
+## 📄 License
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+MIT License — see [LICENSE](#) for details.
 
-## Contributing
+## 🤝 Contributing
 
-1. Fork the repository
-2. Create a feature branch
+1. Fork this repo
+2. Create a new branch
 3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
-
-## License
-
-MIT License - see LICENSE file for details.
+4. Submit a PR
