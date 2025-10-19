@@ -7,29 +7,28 @@ It verifies user age using cryptographically-signed JWTs, without storing any pe
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 21+
+- npm
 
 ### 1. Clone & Install
 
-\`\`\`bash
-git clone <repository-url>
-cd privyage
+```bash
+git clone https://github.com/jopoepl/privyage-moca
 npm install
-\`\`\`
+```
 
 ### 2. Run the App
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 Then visit:
 👉 [http://localhost:3000/demo](http://localhost:3000/demo)
 
 ## 🏗️ Project Structure
 
-\`\`\`
+```
 privyage/
 ├── app/
 │ ├── api/
@@ -53,7 +52,7 @@ privyage/
 │ └── useUserStore.ts # Global user state (Zustand)
 │
 └── package.json
-\`\`\`
+```
 
 ## 🔐 How It Works
 
@@ -61,34 +60,41 @@ privyage/
 2. The app calls \`/api/generate-jwt\` to get a signed JWT (RSA).
 3. The token is verified via AirKit’s JWKS endpoint.
 4. If the user’s age ≥ required minimum → verification success.
-5. Optionally, user can issue a credential on-chain via \`IssueCredentialButton\`.
+5. Access to content granted
+6. Optionally, user can issue a credential on-chain via \`IssueCredentialButton\`.
 
 ## ⚙️ Configuration
 
-Create a \`.env.local\` file:
-\`\`\`
-NEXT_PUBLIC_REQUIRED_AGE=18
-NEXT_PUBLIC_API_URL=/api/generate-jwt
-\`\`\`
+Create a `.env.local` file:
+
+```
+NEXT_PUBLIC_MOCA_PARTNER_ID='your-partner-id-from-dashboard'
+NEXT_PUBLIC_API_URL=http://localhost:3000
+NEXT_PUBLIC_MOCA_CREDENTIAL_ID='your-credential-issuer-program-ID'
+NEXT_PUBLIC_MOCA_VERIFIER_ID = 'your-verifier-program-ID'
+NEXT_PUBLIC_MOCA_VERIFIER_DID = 'your-verifier-did-from-dashboard'
+NEXT_PUBLIC_MOCA_ISSUER_DID = 'your-issuer-program-did-from-dashboard'
+```
+
 Add any AirKit or external service keys if required.
 
 ## 🧪 Demo
 
 The demo page shows a complete verification and credential flow:
 
-- \`/demo\`
+- demo
 - Blur-until-verified UI
 - Privacy-focused flow (no personal data stored)
 - Blockchain-backed verification
 
 ## 🛠️ Scripts
 
-\`\`\`bash
+```bash
 npm run dev # Start local server
 npm run build # Build for production
 npm run start # Start production build
 npm run lint # Run ESLint
-\`\`\`
+```
 
 ## 🔒 Features
 
