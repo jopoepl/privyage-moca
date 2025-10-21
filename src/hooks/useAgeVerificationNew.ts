@@ -67,12 +67,13 @@ export const useAgeVerificationNew = () => {
         throw new Error("Missing auth token before calling verifyCredential");
       }
       
-      console.log("Starting verification service.......")
+      console.log("Starting verification service")
 
       // 3️⃣ Call AirKit verification
       const result = await service.verifyCredential({
         authToken,
         programId: config.programId,
+        redirectUrl: `${window.location.origin}/issue`,
       });
 
       console.log("✅ Verification result:", result);
