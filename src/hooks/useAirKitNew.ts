@@ -7,7 +7,7 @@ import type { AirLoginResult } from "@mocanetwork/airkit";
 
 export const useAirKitNew = () => {
   const { service, isReady, loading, error } = useAirKitService();
-  const { setUser } = useUserStore();
+  const { setUser, setJwtToken } = useUserStore();
 
   const login = useCallback(async () => {
     if (!isReady || !service) {

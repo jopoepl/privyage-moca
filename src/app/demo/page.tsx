@@ -6,6 +6,7 @@ import VerifyButton from "@/components/VerifyButton";
 import IssueCredentialButton from "@/components/IssueCredentialButton";
 import { useAirKitNew } from "@/hooks/useAirKitNew";
 
+
 /**
  * DemoPage (homepage style)
  * - Background uses the "Featured Bottle" gradient color
@@ -17,11 +18,47 @@ import { useAirKitNew } from "@/hooks/useAirKitNew";
  */
 
 export default function DemoPage() {
-  const { user, isUserLoggedIn, isUserVerified, userVerificationStatus } =
+  const { user, isUserLoggedIn, isUserVerified, userVerificationStatus, setJwtToken } =
     useUserStore();
   const { login } = useAirKitNew();
 
   const [requiredAge, setRequiredAge] = useState(18);
+  
+  useEffect(() => {
+    // Only run when the user is logged in
+    if (!isUserLoggedIn) return;
+  
+    console.log("🔁 Prefetching JWT token now that user is logged in...");
+  
+    const fetchToken = async () => {
+      try {
+        const response = await fetch(`/api/generate-jwt`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requiredAge: 21,
+            scope: "issue verify",
+          }),
+        });
+  
+        console.log("🔍 JWT endpoint status:", response.status);
+  
+        const { authToken } = await response.json();
+  
+        if (!authToken) throw new Error("Failed to get auth token from backend");
+        setJwtToken(authToken);
+        console.log("✅ JWT token generated on reload");
+      } catch (err) {
+        console.error("❌ Failed to generate JWT:", err);
+      }
+    };
+  
+    // optional: small delay so Privy wallet/session finishes initialization
+    const timer = setTimeout(fetchToken, 500);
+    return () => clearTimeout(timer);
+  }, [isUserLoggedIn, setJwtToken]);
+
+
 
   useEffect(() => {
     console.log("🔍 Zustand store state:", {

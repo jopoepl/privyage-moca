@@ -5,9 +5,8 @@ import { useUserStore } from "@/store/useUserStore";
 import { useAirKitService } from "@/hooks/useAirKitService";
 
 export const useAgeVerificationNew = () => {
-  const { isUserLoggedIn } = useUserStore();
   const { service, isReady } = useAirKitService();
-  const { setIsUserVerified, setUserVerificationStatus } = useUserStore();
+  const { isUserLoggedIn, setIsUserVerified, setUserVerificationStatus, setJwtToken, jwtToken } = useUserStore();
 
   const [config] = useState({
     verifierDid: process.env.NEXT_PUBLIC_MOCA_VERIFIER_DID, // for context, not used yet
@@ -34,7 +33,12 @@ export const useAgeVerificationNew = () => {
           "AirKit service not initialized yet. Try again in a moment.",
         );
       }
+      
+      let authToken: string | null = jwtToken ?? null;
 
+      
+      if(!jwtToken){
+        
       // 1️⃣ Get JWT from backend
       const response = await fetch(`/api/generate-jwt`, {
         method: "POST",
@@ -44,20 +48,30 @@ export const useAgeVerificationNew = () => {
           scope: "issue verify",
         }),
       });
+      
+      const json = await response.json();
 
-      const { authToken } = await response.json();
+      authToken = json?.authToken ?? null;
       if (!authToken) throw new Error("Failed to get auth token from backend");
+      setJwtToken(authToken)
+      }
 
-      if (!authToken) throw new Error("Failed to get token from backend");
+
 
       // 2️⃣ Check config
       if (!config.programId) {
         throw new Error("Program ID is not defined");
       }
+      
+      if (!authToken) {
+        throw new Error("Missing auth token before calling verifyCredential");
+      }
+      
+      console.log("Starting verification service.......")
 
       // 3️⃣ Call AirKit verification
       const result = await service.verifyCredential({
-        authToken: authToken,
+        authToken,
         programId: config.programId,
       });
 

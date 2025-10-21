@@ -4,7 +4,7 @@ import { useUserStore } from "@/store/useUserStore";
 import { useAirKitService } from "@/hooks/useAirKitService";
 
 export const useCredentialIssuanceNew = () => {
-  const { isUserLoggedIn } = useUserStore();
+  const { isUserLoggedIn, jwtToken, setJwtToken } = useUserStore();
   const { service, isReady } = useAirKitService();
   const { setIsUserVerified, setUserVerificationStatus } = useUserStore(); // once issue is complete - we can set user as verified!!
 
@@ -33,27 +33,40 @@ export const useCredentialIssuanceNew = () => {
           "AirKit service not initialized yet. Try again in a moment.",
         );
       }
+      
+      
+      let authToken: string | null = jwtToken ?? null;
 
-      // 1️⃣ Get JWT from backend
-      const response = await fetch(`/api/generate-jwt`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requiredAge: 21,
-          scope: "issue verify",
-        }),
-      });
-
-      const { authToken } = await response.json();
-      if (!authToken) throw new Error("Failed to get auth token from backend");
-
-      if (!authToken) throw new Error("Failed to get token from backend");
-
-      console.log(
-        authToken,
-        "Token generated from backend, proceeding to verification...",
-      );
-
+      if (!authToken) {
+        console.log("🔁 No JWT token found in store — generating a new one...");
+  
+        const response = await fetch(`/api/generate-jwt`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            requiredAge: 21,
+            scope: "issue verify",
+          }),
+        });
+  
+        if (!response.ok) {
+          const text = await response.text().catch(() => "");
+          throw new Error(`JWT endpoint failed: ${response.status} ${text}`);
+        }
+  
+        const json = await response.json();
+        authToken = json?.authToken ?? null;
+  
+        if (!authToken) {
+          throw new Error("Failed to get auth token from backend");
+        }
+  
+        setJwtToken(authToken);
+        console.log("✅ JWT token fetched and saved to store.");
+      } else {
+        console.log("🟢 Using cached JWT token from store.");
+      }
+     
       // 2️⃣ Check config
       if (!config.programId) {
         throw new Error("Program ID is not defined");
@@ -61,14 +74,18 @@ export const useCredentialIssuanceNew = () => {
       if (!config.issuerDid) {
         throw new Error("Issuer DID is not defined");
       }
+      
+      if (!authToken) {
+          throw new Error("No valid auth token available before issuing credential");
+        }
 
       const credentialSubject = {
         age: 21,
       };
 
-      // 3️⃣ Call AirKit verification
+      // 3️⃣ Call AirKit credential issuance
       const result = await service.issueCredential({
-        authToken: authToken,
+        authToken,
         issuerDid: config.issuerDid,
         credentialId: config.programId,
         credentialSubject: credentialSubject,

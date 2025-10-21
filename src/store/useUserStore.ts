@@ -11,6 +11,8 @@ interface UserStore {
   isUserLoggedIn: boolean;
   isUserVerified: boolean;
   userVerificationStatus: string | null;
+  jwtToken: string | null;
+  setJwtToken: (token: string | null) => void;
   setUser: (user: User | null) => void;
   setIsUserVerified: (verified: boolean) => void;
   setUserVerificationStatus: (status: string) => void;
@@ -22,13 +24,15 @@ export const useUserStore = create<UserStore>((set) => ({
   isUserLoggedIn: false,
   isUserVerified: false,
   userVerificationStatus: "Unverified",
+  jwtToken: null,
 
   setUser: (user) =>
     set({
       user,
       isUserLoggedIn: !!user,
     }),
-
+    
+  setJwtToken: (token) => set({jwtToken: token}),
   setIsUserVerified: (verified) => set({ isUserVerified: verified }),
   setUserVerificationStatus: (status) =>
     set({ userVerificationStatus: status }),
